@@ -64,9 +64,16 @@ function parseConventional(raw) {
   return { type: m[1].toLowerCase(), scope: m[2] || "", bang: Boolean(m[3]), rest: m[4].trim() };
 }
 
+const FIX_REF = /^\(?(?:fix(?:es|ed)?|close[sd]?)[:\s]+[#A-Z0-9/-]+\)?/i;
+
 function classify(line) {
-  const raw = stripTicket(stripHash(line.replace(/^[-*+]\s+/, "").replace(/^#{1,6}\s+/, "")));
+  const stripped = stripHash(line.replace(/^[-*+]\s+/, "").replace(/^#{1,6}\s+/, ""));
+  const raw = stripTicket(stripped);
   if (!raw) return null;
+  // "Fixes #12: crash on save" loses its verb to stripTicket; keep the signal.
+  if (FIX_REF.test(stripped) && !parseConventional(raw) && !SKIP_PREFIX.test(raw)) {
+    return { group: "Fixed", text: sentence(raw.replace(/^fix(es|ed)?\s*/i, "")), raw };
+  }
   if (/^merge /i.test(raw) || SKIP_PREFIX.test(raw)) return { skip: true, reason: "noise", raw };
   if (GENERIC.some((re) => re.test(raw.replace(/\.$/, "")))) {
     return { skip: true, reason: "generic", raw };

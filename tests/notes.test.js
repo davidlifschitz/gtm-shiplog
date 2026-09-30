@@ -38,3 +38,14 @@ describe("buildNotes", () => {
     expect(buildNotes("wip\nMerge branch main").markdown).toContain("Nothing specific enough");
   });
 });
+
+describe("ticket references", () => {
+  it("files 'Fixes #N: ...' under Fixed", () => {
+    for (const line of ["Fixes #12: crash on save", "fixes ABC-9 - crash on save", "(fixes #3) crash on save", "a1b2c3d Fixes #12: crash on save"]) {
+      expect(buildNotes(line).markdown, line).toContain("### Fixed\n\n- Crash on save.");
+    }
+  });
+  it("keeps plain ticket prefixes neutral", () => {
+    expect(buildNotes("ABC-12: tidy settings page").markdown).toContain("### Changed\n\n- Tidy settings page.");
+  });
+});
