@@ -122,6 +122,7 @@
 
       <textarea
         id="src"
+        aria-label="Git log, changelog, or PR titles"
         spellcheck="false"
         placeholder="git log --pretty=format:'%s%n%b%n---' v1.3.0..HEAD&#10;or paste a CHANGELOG / PR titles"
       ></textarea>
@@ -130,8 +131,8 @@
         <button type="button" id="go">Group notes</button>
         <button type="button" class="ghost" id="copy">Copy markdown</button>
       </div>
-      <p class="meta" id="status">Waiting for a log.</p>
-      <p class="warn" id="error" hidden></p>
+      <p class="meta" id="status" aria-live="polite">Waiting for a log.</p>
+      <p class="warn" id="error" role="alert" hidden></p>
       <pre id="out" hidden></pre>
 
       <section class="cards" style="margin-top: 2.5rem;">
