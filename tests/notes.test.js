@@ -24,7 +24,7 @@ describe("buildNotes", () => {
     expect(r.markdown).toContain("## v1.2.0");
     expect(r.markdown).toMatch(/### Added\n\n- Api: add export endpoint\./);
     expect(r.markdown).toMatch(/### Fixed\n\n- Crash on empty config\./);
-    expect(r.markdown).toMatch(/### Changed\n\n- Rename settings file\./);
+    expect(r.markdown).toMatch(/### Breaking\n\n- Rename settings file\./);
     expect(r.markdown).toContain("### Skipped as generic");
     expect([r.kept, r.generic, r.noise]).toEqual([3, 1, 2]);
   });
@@ -47,5 +47,12 @@ describe("ticket references", () => {
   });
   it("keeps plain ticket prefixes neutral", () => {
     expect(buildNotes("ABC-12: tidy settings page").markdown).toContain("### Changed\n\n- Tidy settings page.");
+  });
+});
+
+describe("breaking changes", () => {
+  it("puts ! commits and BREAKING CHANGE lines first in their own group", () => {
+    const r = buildNotes("feat: add export\nfix(api)!: drop v1 endpoints\nBREAKING CHANGE: config moved to shiplog.json", "2.0.0");
+    expect(r.markdown).toMatch(/^## 2\.0\.0\n\n### Breaking\n\n- Api: drop v1 endpoints\.\n- Config moved to shiplog\.json\.\n\n### Added/);
   });
 });

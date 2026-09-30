@@ -70,6 +70,8 @@ function classify(line) {
   const stripped = stripHash(line.replace(/^[-*+]\s+/, "").replace(/^#{1,6}\s+/, ""));
   const raw = stripTicket(stripped);
   if (!raw) return null;
+  const brk = raw.match(/^BREAKING[ -]CHANGES?:\s*(.+)$/i);
+  if (brk) return { group: "Breaking", text: sentence(brk[1]), raw };
   // "Fixes #12: crash on save" loses its verb to stripTicket; keep the signal.
   if (FIX_REF.test(stripped) && !parseConventional(raw) && !SKIP_PREFIX.test(raw)) {
     return { group: "Fixed", text: sentence(raw.replace(/^fix(es|ed)?\s*/i, "")), raw };
@@ -86,7 +88,7 @@ function classify(line) {
     if (GENERIC.some((re) => re.test(conv.rest.replace(/\.$/, "")))) {
       return { skip: true, reason: "generic", raw };
     }
-    const group = conv.bang ? "Changed" : TYPE_MAP[conv.type] || "Changed";
+    const group = conv.bang ? "Breaking" : TYPE_MAP[conv.type] || "Changed";
     const scope = conv.scope ? `${conv.scope}: ` : "";
     return { group, text: sentence(scope + conv.rest), raw };
   }
@@ -157,7 +159,7 @@ export function buildNotes(text, version) {
     seen.add(key);
     items.push(item);
   }
-  const order = ["Added", "Changed", "Fixed", "Removed", "Security", "Docs", "Improved"];
+  const order = ["Breaking", "Added", "Changed", "Fixed", "Removed", "Security", "Docs", "Improved"];
   const groups = {};
   for (const it of items) {
     (groups[it.group] ||= []).push(it.text);
