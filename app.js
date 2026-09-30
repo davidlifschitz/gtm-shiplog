@@ -242,8 +242,12 @@ $("copy").addEventListener("click", async () => {
   run();
   const md = $("out").textContent;
   if (!md) return;
-  await navigator.clipboard.writeText(md);
-  $("status").textContent = "Copied markdown.";
+  try {
+    await navigator.clipboard.writeText(md);
+    $("status").textContent = "Copied markdown.";
+  } catch {
+    $("status").textContent = "Couldn't copy. Select the notes below and copy by hand.";
+  }
 });
 $("pick").addEventListener("click", () => $("file").click());
 $("file").addEventListener("change", (e) => loadFile(e.target.files[0]));

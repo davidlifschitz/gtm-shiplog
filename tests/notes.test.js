@@ -56,3 +56,19 @@ describe("breaking changes", () => {
     expect(r.markdown).toMatch(/^## 2\.0\.0\n\n### Breaking\n\n- Api: drop v1 endpoints\.\n- Config moved to shiplog\.json\.\n\n### Added/);
   });
 });
+
+describe("accessibility", () => {
+  it("labels the log box and announces status and errors", () => {
+    const src = document.getElementById("src");
+    expect(src.getAttribute("aria-label") || document.querySelector(`label[for=src]`)?.textContent).toBeTruthy();
+    expect(document.getElementById("status").getAttribute("aria-live")).toBe("polite");
+    expect(document.getElementById("error").getAttribute("role")).toBe("alert");
+  });
+  it("says so when the clipboard is blocked", async () => {
+    Object.defineProperty(navigator, "clipboard", { value: { writeText: () => Promise.reject(new Error("denied")) }, configurable: true });
+    document.getElementById("src").value = "feat: a thing";
+    document.getElementById("copy").click();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(document.getElementById("status").textContent).toMatch(/couldn't copy/i);
+  });
+});
